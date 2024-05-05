@@ -32,14 +32,12 @@ namespace arrows
                 for (int col = 0; col < GridColumns; col++)
                 {
                     Random random = new Random();
-                    Cell cell = new Cell(random.Next(1, 8));
+                    NumberCell cell = new NumberCell(random.Next(1, 8));
                     Children.Add(cell);
                     SetLeft(cell, col * CellSize);
                     SetTop(cell, row * CellSize);
                 }
             }
         }
-
-
     }
 }

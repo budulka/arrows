@@ -5,21 +5,14 @@ using System.Windows;
 
 namespace arrows
 {
-    internal class Cell : UserControl
+    internal class NumberCell : DefaultCell
     {
-        private const int CellSize = 50;
+        
         public int value;
         
-        public Cell(int v)
+        public NumberCell(int v)
         {
-            Rectangle rect = new Rectangle
-            {
-                Width = CellSize,
-                Height = CellSize,
-                Fill = Brushes.White,
-                Stroke = Brushes.Black,
-                StrokeThickness = 1
-            };
+     
             value = v;
             TextBlock textBlock = new TextBlock
             {
@@ -29,14 +22,11 @@ namespace arrows
                 HorizontalAlignment = HorizontalAlignment.Center, 
                 VerticalAlignment = VerticalAlignment.Center 
             };
-            Content = new Grid();
-            ((Grid)Content).Children.Add(rect);
-            ((Grid)Content).Children.Add(textBlock);
+            Grid grid = new Grid();
+            grid.Children.Add(textBlock);
+            Content = grid;
+
         }
-        protected override void OnRender(DrawingContext drawingContext)
-        {
-            base.OnRender(drawingContext);
-            drawingContext.DrawRectangle(Brushes.White, new Pen(Brushes.Black, 1), new Rect(0, 0, CellSize, CellSize));
-        }
+        
     }
 }
