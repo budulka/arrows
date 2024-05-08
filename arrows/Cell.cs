@@ -1,4 +1,4 @@
-﻿using System.Windows.Shapes;
+﻿
 using System.Windows.Media;
 using System.Windows.Controls;
 using System.Windows;
@@ -9,8 +9,8 @@ namespace arrows
     {
         
         public int value;
-        
-        public NumberCell(int v)
+
+        public NumberCell(int v) : base()
         {
      
             value = v;
