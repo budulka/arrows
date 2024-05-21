@@ -9,6 +9,7 @@ namespace arrows
     {
         
         public int value;
+      
 
         public NumberCell(int v) : base()
         {
