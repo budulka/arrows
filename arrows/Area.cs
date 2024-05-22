@@ -1,6 +1,7 @@
 ﻿
 
 using System;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using static arrows.ArrowCell;
@@ -17,6 +18,8 @@ namespace arrows
         internal NumberCell[][] NumberCells;
         internal ArrowCell[][] GetArrowCells => Arrows;
         public MatrixClass _currentField;
+        private bool _isGameWon = false;
+        public bool IsWon { get {  return _isGameWon; } }
         public GameArea(int size)
         {
             Size = size;
@@ -37,13 +40,13 @@ namespace arrows
             {
                 NumberCells[i] = new NumberCell[Size];
             }
-            _currentField = (MatrixClass)FieldMatrix.Clone();
+
             GetNumberField();
             InitializeArrowCells();
+            _currentField = (MatrixClass)FieldMatrix.Clone();
+            
         }
-
-
-
+            
 
         private int[][] InitializeArrowArrays()
         {
@@ -92,26 +95,59 @@ namespace arrows
             Arrows[0][Size - 1] = new ArrowCell(LogicType.Right, 0, Size - 1, this);
             Arrows[1][0] = new ArrowCell(LogicType.Left, 1, 0, this);
             Arrows[1][Size - 1] = new ArrowCell(LogicType.Right, 1, Size - 1, this);
-            Arrows[2][0] = new ArrowCell(LogicType.Right, 2, 0, this);
-            Arrows[2][Size - 1] = new ArrowCell(LogicType.Left, 2, Size - 1, this);
-            Arrows[3][0] = new ArrowCell(LogicType.Right, 3, 0, this);
-            Arrows[3][Size - 1] = new ArrowCell(LogicType.Left, 3, Size - 1, this);
+            Arrows[2][0] = new ArrowCell(LogicType.Left, 2, 0, this);
+            Arrows[2][Size - 1] = new ArrowCell(LogicType.Right, 2, Size - 1, this);
+            Arrows[3][0] = new ArrowCell(LogicType.Left, 3, 0, this);
+            Arrows[3][Size - 1] = new ArrowCell(LogicType.Right, 3, Size - 1, this);
         }
 
-        public void UpdateCurrentField(int from, MatrixClass.VectorDirection direction, int pos)
+        public void UpdateCurrentField(int from, MatrixClass.VectorDirection direction, int pos, MatrixClass.VectorDirection previous)
         {
-            int[][] VectorMatrix = FieldMatrix.CreateMatrixFromVector(from, direction, pos, Size);
-            _currentField = _currentField.SubtractMatrices(VectorMatrix);
+            if (previous != MatrixClass.VectorDirection.NoDirection)
+            {
+                int[][] prev = FieldMatrix.CreateMatrixFromVector(from, previous, pos, Size);
+                _currentField = _currentField.AddMatrices(prev);
+            }
+            if (direction != MatrixClass.VectorDirection.NoDirection)
+            {
+                int[][] VectorMatrix = FieldMatrix.CreateMatrixFromVector(from, direction, pos, Size);
+                _currentField = _currentField.SubtractMatrices(VectorMatrix);
+            }
             for (int i = 0; i < Size; i++)
             {
                 for (int j = 0; j < Size; j++)
                 {
                     if (_currentField[i, j] == 0)
                     {
-                       NumberCells[i][j].Foreground = Brushes.Green;
+                       NumberCells[i][j].text.Foreground = Brushes.Green;
+                       NumberCells[i][j].text.FontWeight = FontWeights.Bold;
+                    }
+                    else if (_currentField[i, j] < 0)
+                    {
+                        NumberCells[i][j].text.Foreground = Brushes.Red;
+                        NumberCells[i][j].text.FontWeight = FontWeights.Bold;
+                    }
+                    else
+                    {
+                        NumberCells[i][j].text.Foreground= Brushes.Black;
+                        NumberCells[i][j].text.FontWeight= FontWeights.Normal;
                     }
                 }
             }
+        }
+
+       public bool CheckWin()
+        {
+            for (int i = 0; i < Size; i++)
+            {
+                for (int j = 0; j < Size; j++)
+                {
+                    if (_currentField[i,j] != 0)
+                    { return false; }
+                }
+            }
+            _isGameWon = true;
+            return true;
         }
 
 
@@ -150,7 +186,8 @@ namespace arrows
             {
                 Vertical,
                 DiagonalRight,
-                DiagonalLeft
+                DiagonalLeft,
+                NoDirection
             }
             private int[][] MatrixArray;
             public MatrixClass(int[][] matrix)

@@ -2,6 +2,7 @@
 
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 
 
@@ -12,8 +13,8 @@ namespace arrows
     {
         Dictionary<string, int> keyValuePairs = new Dictionary<string, int>() {
             { "Small", 3 },
-            { "Medium", 5},
-            { "Large", 7}
+            { "Medium", 6},
+            { "Large", 8}
         };
         public MainWindow()
         {
@@ -30,13 +31,14 @@ namespace arrows
                 Height = 400,
                 Width = 400
             };
-            
+            //top row
             for (int i = 0; i < gridSize; i++) {
                 ArrowCell arrowCell = gameArea.GetArrowCells[0][i];
                 Canvas.SetLeft(arrowCell, (i + 1) * DefaultCell.CellSize);
                 Canvas.SetTop(arrowCell, 0);
                 gameArea.Children.Add(arrowCell);
             }
+            //right column
             for (int i = 0; i < gridSize; i++)
             {
                 ArrowCell arrowCell = gameArea.GetArrowCells[1][i];
@@ -44,18 +46,20 @@ namespace arrows
                 Canvas.SetTop(arrowCell, (i+1) * DefaultCell.CellSize);
                 gameArea.Children.Add(arrowCell);
             }
+            //bottom row
             for (int i = 0; i < gridSize; i++)
             {
                 ArrowCell arrowCell = gameArea.GetArrowCells[2][i];
-                Canvas.SetLeft(arrowCell, (i + 1) * DefaultCell.CellSize);
+                Canvas.SetLeft(arrowCell, gridSize * DefaultCell.CellSize - (i * DefaultCell.CellSize));
                 Canvas.SetTop(arrowCell, (gridSize + 1) * DefaultCell.CellSize);
                 gameArea.Children.Add(arrowCell);
             }
+            //left row
             for (int i = 0; i < gridSize; i++)
             {
                 ArrowCell arrowCell = gameArea.GetArrowCells[3][i];
                 Canvas.SetLeft(arrowCell, 0);
-                Canvas.SetTop(arrowCell, (i + 1) * DefaultCell.CellSize);
+                Canvas.SetTop(arrowCell, (gridSize - i) * DefaultCell.CellSize);
                 gameArea.Children.Add(arrowCell);
             }
 
@@ -63,7 +67,12 @@ namespace arrows
             {   
                 for (int col = 0; col < gridSize; col++)
                 {
-                    NumberCell cell = new NumberCell(gameArea.FieldMatrix[row, col]);
+                    NumberCell cell = new NumberCell(gameArea.FieldMatrix[row, col], row, col, gameArea);
+                    if (gameArea.FieldMatrix[row, col] == 0)
+                    {
+                        cell.text.Foreground = Brushes.Green;
+                        cell.text.FontWeight = FontWeights.Bold;
+                    }
                     Canvas.SetLeft(cell, (col+1) * DefaultCell.CellSize);
                     Canvas.SetTop(cell, (row+1) * DefaultCell.CellSize);
                     gameArea.NumberCells[row][col] = cell;

@@ -15,7 +15,7 @@ namespace arrows
         public LogicType log;
         public int Direction => direction;
         public readonly Point Pos;
-        private MatrixClass.VectorDirection VectorDirection = new MatrixClass.VectorDirection();
+        private MatrixClass.VectorDirection previous = MatrixClass.VectorDirection.NoDirection;
         public enum LogicType
         {
             Left, Center, Right
@@ -24,10 +24,8 @@ namespace arrows
         {
             { LogicType.Left, new Dictionary<int, string> { { 0, "?" }, { 1, "🡦" }, { 2, " 🡣" } } },
             { LogicType.Center, new Dictionary<int, string> { { 0, "?" }, { 1, "🡧" }, { 2, "🡣" }, { 3, "🡦" } } },
-            { LogicType.Right, new Dictionary<int, string> { { 0, "?" }, { 1, " 🡣" }, { 2, "🡧" } } }, 
+            { LogicType.Right, new Dictionary<int, string> { { 0, "?" }, { 1, "🡧" }, { 2, "🡣" } } },
         };
-
-
 
         private TextBlock textBlock;
         private Dictionary<int, string> ArrowMappings;
@@ -52,30 +50,63 @@ namespace arrows
                 LayoutTransform = new RotateTransform(x * 90)
 
             };
-
+            log = logic;
             Content = textBlock;
             MouseDown += Cell_MouseDown;
         }
 
         private void Cell_MouseDown(object sender, MouseEventArgs e)
         {
+            if(area.IsWon)
+            {
+                return;
+            }
             direction++;
             if (direction >= ArrowMappings.Count)
             {
                 direction = 0;
             }
             textBlock.Text = GetArrowDirection();
-            if (direction != 0)
+            MatrixClass.VectorDirection cur = GetActualDireaction();
+            area.UpdateCurrentField((int)Pos.X, cur, (int)Pos.Y, previous);
+            previous = cur;
+            
+            if(area.CheckWin())
             {
-                area.UpdateCurrentField((int)Pos.X, GetActualDireaction(), (int)Pos.Y);
+                WinDialog winDialog = new();
+                winDialog.ShowDialog();
             }
+           
 
         }
 
         private MatrixClass.VectorDirection GetActualDireaction()
         {
+            if (direction == 0)
+            {
+                return MatrixClass.VectorDirection.NoDirection;
+            }
             switch (log) { 
-            
+                case LogicType.Center:
+                    if (direction == 1) {
+                        return MatrixClass.VectorDirection.DiagonalLeft;
+                    }
+                    if (direction == 2) {
+                        return MatrixClass.VectorDirection.Vertical;
+                    }
+                    return MatrixClass.VectorDirection.DiagonalRight;
+                case LogicType.Right:
+                    if (direction == 1) {
+                        return MatrixClass.VectorDirection.DiagonalLeft;
+                    }
+                    return MatrixClass.VectorDirection.Vertical;
+                case LogicType.Left:
+                    if (direction == 1) {
+                        return MatrixClass.VectorDirection.DiagonalRight;
+                    }
+                    return MatrixClass.VectorDirection.Vertical;
+                default:
+                    return MatrixClass.VectorDirection.NoDirection;
             }
             
         }
