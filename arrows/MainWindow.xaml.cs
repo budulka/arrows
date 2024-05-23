@@ -8,10 +8,10 @@ using System.Windows.Media;
 
 namespace arrows
 {
-
     public partial class MainWindow : Window
     {
         GameArea area;
+        private int _selected = -1;
         Dictionary<string, int> keyValuePairs = new Dictionary<string, int>() {
             { "Small", 3 },
             { "Medium", 6},
@@ -21,8 +21,6 @@ namespace arrows
         {
             InitializeComponent();
             RowsBox.SelectionChanged += ComboBox_SelectionChanged;
-            { }
-           
         }
 
         private void InitializeGameArea(int gridSize)
@@ -85,13 +83,11 @@ namespace arrows
         }
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-
-
             ComboBoxItem item = (ComboBoxItem)RowsBox.SelectedItem;
             if (item != null)
             {
-                int sel = keyValuePairs[item.Content.ToString()];
-                InitializeGameArea(sel);
+                _selected = keyValuePairs[item.Content.ToString()];
+                
             }
         }
 
@@ -103,7 +99,21 @@ namespace arrows
 
         private void RevealGame(object sender, RoutedEventArgs e)
         {
-            Hint hint = new Hint(area, area.Size); 
+            Hint hint = new Hint(area, area.Size);
+            hint.Reveal();
+        }
+
+        private void Generate(object sender, RoutedEventArgs e)
+        {
+            if (_selected == -1)
+            { 
+                return;
+            }
+            Button but = (Button)sender;
+            but.Content = "Restart";
+            InitializeGameArea(_selected);
+            Hint.Visibility = Visibility.Visible;
+            GiveUpButton.Visibility = Visibility.Visible;
         }
     }
 }

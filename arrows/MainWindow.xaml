@@ -18,20 +18,23 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
+
         <StackPanel Margin="10" Grid.Column="0">
             <ComboBox x:Name="RowsBox" Width="200" Margin="10" SelectionChanged="ComboBox_SelectionChanged">
                 <ComboBoxItem Content="Small" />
                 <ComboBoxItem Content="Medium" />
                 <ComboBoxItem Content="Large" />
             </ComboBox>
-            <Button x:Name="Hint" Width="90" Click="GetHint">
+            <Button x:Name ="StartButton" Width="90" FontSize="20" Click="Generate">
+                <TextBlock Text="Start"/>
+            </Button>
+            <Button x:Name="Hint" Width="90"  Margin ="20" Click="GetHint" Visibility="Collapsed">
                 <TextBlock Text="Get hint" FontSize="20"/>
             </Button>
-            <Button Width="90" Margin="20" Click="RevealGame">
+            <Button x:Name ="GiveUpButton" Width="90" Click="RevealGame" Visibility="Collapsed">
                 <TextBlock Text="Reveal"  FontSize="20"/>
             </Button>
         </StackPanel>
-
         <ContentControl x:Name="GameAreaContainer" Grid.Column="1" />
     </Grid>
 </Window>

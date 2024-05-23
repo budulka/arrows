@@ -33,12 +33,12 @@ namespace arrows
             grid.Children.Add(textBlock);
             Content = grid;
             MouseDown += On_Click;
+            
         }
 
         public void On_Click(object sender, RoutedEventArgs e)
         {
             area.HighLightCells(x, y, this);
         }
-        
     }
 }

@@ -46,7 +46,6 @@ namespace arrows
             GetNumberField();
             
             _currentField = (MatrixClass)FieldMatrix.Clone();
-            
         }
             
 
@@ -147,8 +146,13 @@ namespace arrows
                 {
                     Disable(i);
                 }
+            } if (_highlighted == cell)
+            {
+                _highlighted = null;
+                return;
             }
             _highlighted = cell;
+
             Dispatcher.Invoke(() => { 
                 cell.RectanglePen = new Pen(Brushes.PaleTurquoise, 3);
                 SetZIndex(cell, 1);
@@ -258,9 +262,12 @@ namespace arrows
             this.area = area;
             Size = s;
         }
-
         public void GetHint()
         {
+            if (area.IsWon)
+            {
+                return;
+            }
             Random randomX = new Random();
             Random randomY = new Random();
             int x, y;
@@ -271,168 +278,24 @@ namespace arrows
             area.GetArrowCells[x][y].IsDisabled = true;
             area.GetArrowCells[x][y].MarkAsHinted();
         }
-    }
-
-
-
-    public class MatrixClass : ICloneable
-    {
-
-        public enum VectorDirection
+        public void Reveal()
         {
-                Vertical,
-                DiagonalRight,
-                DiagonalLeft,
-                NoDirection
-        }
-        private int[][] MatrixArray;
-        public MatrixClass(int[][] matrix)
-        {
-                MatrixArray = matrix;
-        }
-            public object Clone() => new MatrixClass(MatrixArray); 
-            public MatrixClass AddMatrices(int[][] matrix2)
+            if (area.IsWon)
             {
-                int rows = MatrixArray.Length;
-                int cols = MatrixArray[0].Length;
-
-                int[][] result = new int[rows][];
-
-                for (int i = 0; i < rows; i++)
-                {
-                    result[i] = new int[cols];
-                    for (int j = 0; j < cols; j++)
-                    {
-
-                        result[i][j] = MatrixArray[i][j] + matrix2[i][j];
-                    }
-                }
-
-                return new MatrixClass(result);
+                return;
             }
-
-            public MatrixClass SubtractMatrices(int[][] matrix2)
+            for (int i = 0; i < 4; i++)
             {
-                int rows = MatrixArray.Length;
-                int cols = MatrixArray[0].Length;
-
-                int[][] result = new int[rows][];
-
-                for (int i = 0; i < rows; i++)
+                for (int j = 0; j < Size; j++)
                 {
-                    result[i] = new int[cols];
-                    for (int j = 0; j < cols; j++)
-                    {
-
-                        result[i][j] = MatrixArray[i][j] - matrix2[i][j];
-                    }
-                }
-
-                return new MatrixClass(result);
-            }
-
-            public int[][] CreateMatrixFromVector(int from, VectorDirection direction, int pos, int len)
-            {
-
-                int[][] matrix = new int[len][];
-                for (int i = 0; i < len; i++)
-                {
-                    matrix[i] = new int[len];
-                    for (int j = 0; j < len; j++)
-                    {
-                        matrix[i][j] = 0;
-                    }
-                }
-                switch (direction)
-                {
-                    case VectorDirection.Vertical:
-                        ApplyVertical(pos, matrix);
-                        break;
-                    case VectorDirection.DiagonalLeft:
-                        ApplyDiagonalCounterClockwise(pos, matrix);
-                        break;
-                    case VectorDirection.DiagonalRight:
-                        ApplyDiagonalClockwise(pos, matrix);
-                        break;
-                }
-                for (int j = 0; j < from; j++)
-                { 
-                    RotateClockwise(matrix);
-                }
-
-                return matrix;
-            }
-            private void ApplyVertical(int pos, int[][] mat)
-            {
-                for (int i = 0; i < mat.Length; i++)
-                {
-                    mat[i][pos] += 1;
-                } 
-            }
-
-            private void ApplyDiagonalClockwise(int pos, int[][] mat)
-            {
-                int row = 0;
-                int col = pos + 1;
-
-                while (row < mat.Length && col < mat[row].Length)
-                {
-                    mat[row][col] += 1;
-                    row++;
-                    col++;
-                }
-            }
-
-            private void ApplyDiagonalCounterClockwise(int pos, int[][] mat)
-            {
-                int row = 0;
-                int col = pos - 1;
-
-                while (row < mat.Length && col >= 0)
-                {
-                    mat[row][col] += 1;
-                    row++;
-                    col--;
-                }
-            }
-            private void RotateClockwise(int[][] mat)
-            {
-                int n = mat.Length;
-                int[][] rotatedMatrix = new int[n][];
-
-                for (int i = 0; i < n; i++)
-                {
-                    rotatedMatrix[i] = new int[n];
-                    for (int j = 0; j < n; j++)
-                    {
-                        rotatedMatrix[i][j] = mat[n - 1 - j][i]; 
-                    }
-                }
-
-                
-                for (int i = 0; i < n; i++)
-                {
-                    Array.Copy(rotatedMatrix[i], mat[i], n);
-                }
-
-            }
-
-           
-            public int this[int i, int j]
-            {
-                get
-                {
-
-                    if (i < 0 || i >= MatrixArray.Length || j < 0 || j >= MatrixArray[i].Length)
-                    {
-                        throw new IndexOutOfRangeException("Index out of range");
-                    }
-
-                    return MatrixArray[i][j];
+                    if (!area.GetArrowCells[i][j].IsDisabled) {
+                        area.GetArrowCells[i][j].MarkAsHinted();
+                    };
                 }
             }
         }
     }
+}
 /*
   * - if i can get the name of the cell by clicking
   * - add current state 

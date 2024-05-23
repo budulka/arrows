@@ -28,11 +28,8 @@ namespace arrows
             { LogicType.Center, new Dictionary<int, string> { { 0, "?" }, { 1, "🡧" }, { 2, "🡣" }, { 3, "🡦" } } },
             { LogicType.Right, new Dictionary<int, string> { { 0, "?" }, { 1, "🡧" }, { 2, "🡣" } } },
         };
-
         private TextBlock textBlock;
         private Dictionary<int, string> ArrowMappings;
-
-
 
         public ArrowCell(LogicType logic, int x, int y, GameArea area) : base()
         {
@@ -58,8 +55,8 @@ namespace arrows
 
         private void Cell_MouseDown(object sender, MouseEventArgs e)
         {
-            if(area.IsWon || IsDisabled)
-            { 
+            if (area.IsWon || IsDisabled)
+            {
                 return;
             }
             direction++;
@@ -67,7 +64,7 @@ namespace arrows
             {
                 direction = 0;
             }
-            
+
             textBlock.Text = GetArrowDirection();
             MatrixClass.VectorDirection cur = GetActualDireaction();
             IsCorrect = false;
@@ -77,13 +74,11 @@ namespace arrows
             }
             area.UpdateCurrentField((int)Pos.X, cur, (int)Pos.Y, previous);
             previous = cur;
-            if(area.CheckWin())
+            if (area.CheckWin())
             {
                 WinDialog winDialog = new();
                 winDialog.ShowDialog();
             }
-           
-
         }
 
         public MatrixClass.VectorDirection GetActualDireaction()
@@ -92,22 +87,27 @@ namespace arrows
             {
                 return MatrixClass.VectorDirection.NoDirection;
             }
-            switch (log) { 
+            switch (log)
+            {
                 case LogicType.Center:
-                    if (direction == 1) {
+                    if (direction == 1)
+                    {
                         return MatrixClass.VectorDirection.DiagonalLeft;
                     }
-                    if (direction == 2) {
+                    if (direction == 2)
+                    {
                         return MatrixClass.VectorDirection.Vertical;
                     }
                     return MatrixClass.VectorDirection.DiagonalRight;
                 case LogicType.Right:
-                    if (direction == 1) {
+                    if (direction == 1)
+                    {
                         return MatrixClass.VectorDirection.DiagonalLeft;
                     }
                     return MatrixClass.VectorDirection.Vertical;
                 case LogicType.Left:
-                    if (direction == 1) {
+                    if (direction == 1)
+                    {
                         return MatrixClass.VectorDirection.DiagonalRight;
                     }
                     return MatrixClass.VectorDirection.Vertical;
@@ -161,9 +161,4 @@ namespace arrows
         }
         string GetArrowDirection() => ArrowMappings[direction];
     }
-
-    
 }
-
-
-
