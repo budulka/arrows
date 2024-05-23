@@ -24,6 +24,12 @@
                 <ComboBoxItem Content="Medium" />
                 <ComboBoxItem Content="Large" />
             </ComboBox>
+            <Button x:Name="Hint" Width="90" Click="GetHint">
+                <TextBlock Text="Get hint" FontSize="20"/>
+            </Button>
+            <Button Width="90" Margin="20" Click="RevealGame">
+                <TextBlock Text="Reveal"  FontSize="20"/>
+            </Button>
         </StackPanel>
 
         <ContentControl x:Name="GameAreaContainer" Grid.Column="1" />

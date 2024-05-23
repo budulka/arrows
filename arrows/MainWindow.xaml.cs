@@ -11,6 +11,7 @@ namespace arrows
 
     public partial class MainWindow : Window
     {
+        GameArea area;
         Dictionary<string, int> keyValuePairs = new Dictionary<string, int>() {
             { "Small", 3 },
             { "Medium", 6},
@@ -26,60 +27,60 @@ namespace arrows
 
         private void InitializeGameArea(int gridSize)
         {
-            GameArea gameArea = new GameArea(gridSize)
+            area = new GameArea(gridSize)
             {
                 Height = 400,
                 Width = 400
             };
             //top row
             for (int i = 0; i < gridSize; i++) {
-                ArrowCell arrowCell = gameArea.GetArrowCells[0][i];
+                ArrowCell arrowCell = area.GetArrowCells[0][i];
                 Canvas.SetLeft(arrowCell, (i + 1) * DefaultCell.CellSize);
                 Canvas.SetTop(arrowCell, 0);
-                gameArea.Children.Add(arrowCell);
+                area.Children.Add(arrowCell);
             }
             //right column
             for (int i = 0; i < gridSize; i++)
             {
-                ArrowCell arrowCell = gameArea.GetArrowCells[1][i];
+                ArrowCell arrowCell = area.GetArrowCells[1][i];
                 Canvas.SetLeft(arrowCell, (gridSize+1) * DefaultCell.CellSize);
                 Canvas.SetTop(arrowCell, (i+1) * DefaultCell.CellSize);
-                gameArea.Children.Add(arrowCell);
+                area.Children.Add(arrowCell);
             }
             //bottom row
             for (int i = 0; i < gridSize; i++)
             {
-                ArrowCell arrowCell = gameArea.GetArrowCells[2][i];
+                ArrowCell arrowCell = area.GetArrowCells[2][i];
                 Canvas.SetLeft(arrowCell, gridSize * DefaultCell.CellSize - (i * DefaultCell.CellSize));
                 Canvas.SetTop(arrowCell, (gridSize + 1) * DefaultCell.CellSize);
-                gameArea.Children.Add(arrowCell);
+                area.Children.Add(arrowCell);
             }
             //left row
             for (int i = 0; i < gridSize; i++)
             {
-                ArrowCell arrowCell = gameArea.GetArrowCells[3][i];
+                ArrowCell arrowCell = area.GetArrowCells[3][i];
                 Canvas.SetLeft(arrowCell, 0);
                 Canvas.SetTop(arrowCell, (gridSize - i) * DefaultCell.CellSize);
-                gameArea.Children.Add(arrowCell);
+                area.Children.Add(arrowCell);
             }
 
             for (int row = 0; row < gridSize; row++)
             {   
                 for (int col = 0; col < gridSize; col++)
                 {
-                    NumberCell cell = new NumberCell(gameArea.FieldMatrix[row, col], row, col, gameArea);
-                    if (gameArea.FieldMatrix[row, col] == 0)
+                    NumberCell cell = new NumberCell(area.FieldMatrix[row, col], row, col, area);
+                    if (area.FieldMatrix[row, col] == 0)
                     {
                         cell.text.Foreground = Brushes.Green;
                         cell.text.FontWeight = FontWeights.Bold;
                     }
                     Canvas.SetLeft(cell, (col+1) * DefaultCell.CellSize);
                     Canvas.SetTop(cell, (row+1) * DefaultCell.CellSize);
-                    gameArea.NumberCells[row][col] = cell;
-                    gameArea.Children.Add(cell);
+                    area.NumberCells[row][col] = cell;
+                    area.Children.Add(cell);
                 }
             }
-            GameAreaContainer.Content = gameArea;
+            GameAreaContainer.Content = area;
            
         }
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -93,6 +94,16 @@ namespace arrows
                 InitializeGameArea(sel);
             }
         }
-     
+
+        private void GetHint(object sender, RoutedEventArgs e)
+        {
+            Hint hint = new Hint(area, area.Size);
+            hint.GetHint();
+        }
+
+        private void RevealGame(object sender, RoutedEventArgs e)
+        {
+            Hint hint = new Hint(area, area.Size); 
+        }
     }
 }

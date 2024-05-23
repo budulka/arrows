@@ -1,10 +1,9 @@
-﻿using System.CodeDom;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.ConstrainedExecution;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Navigation;
+
 
 namespace arrows
 {
@@ -16,6 +15,9 @@ namespace arrows
         public int Direction => direction;
         public readonly Point Pos;
         private MatrixClass.VectorDirection previous = MatrixClass.VectorDirection.NoDirection;
+        public MatrixClass.VectorDirection original = MatrixClass.VectorDirection.NoDirection;
+        public bool IsDisabled;
+        public bool IsCorrect;
         public enum LogicType
         {
             Left, Center, Right
@@ -48,7 +50,6 @@ namespace arrows
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 LayoutTransform = new RotateTransform(x * 90)
-
             };
             log = logic;
             Content = textBlock;
@@ -57,8 +58,8 @@ namespace arrows
 
         private void Cell_MouseDown(object sender, MouseEventArgs e)
         {
-            if(area.IsWon)
-            {
+            if(area.IsWon || IsDisabled)
+            { 
                 return;
             }
             direction++;
@@ -66,11 +67,16 @@ namespace arrows
             {
                 direction = 0;
             }
+            
             textBlock.Text = GetArrowDirection();
             MatrixClass.VectorDirection cur = GetActualDireaction();
+            IsCorrect = false;
+            if (original == cur)
+            {
+                IsCorrect = true;
+            }
             area.UpdateCurrentField((int)Pos.X, cur, (int)Pos.Y, previous);
             previous = cur;
-            
             if(area.CheckWin())
             {
                 WinDialog winDialog = new();
@@ -80,7 +86,7 @@ namespace arrows
 
         }
 
-        private MatrixClass.VectorDirection GetActualDireaction()
+        public MatrixClass.VectorDirection GetActualDireaction()
         {
             if (direction == 0)
             {
@@ -108,7 +114,50 @@ namespace arrows
                 default:
                     return MatrixClass.VectorDirection.NoDirection;
             }
-            
+        }
+        public void MarkAsHinted()
+        {
+            IsDisabled = true;
+            textBlock.Foreground = Brushes.Blue;
+            area.UpdateCurrentField((int)Pos.X, original, (int)Pos.Y, previous);
+            direction = GetDirectionAsANumber(original);
+            textBlock.Text = GetArrowDirection();
+            if (area.CheckWin())
+            {
+                WinDialog winDialog = new();
+                winDialog.ShowDialog();
+            }
+        }
+
+        private int GetDirectionAsANumber(MatrixClass.VectorDirection dir)
+        {
+            switch (log)
+            {
+                case LogicType.Center:
+                    if (dir == MatrixClass.VectorDirection.DiagonalLeft)
+                    {
+                        return 1;
+                    }
+                    if (dir == MatrixClass.VectorDirection.Vertical)
+                    {
+                        return 2;
+                    }
+                    return 3;
+                case LogicType.Right:
+                    if (dir == MatrixClass.VectorDirection.DiagonalLeft)
+                    {
+                        return 1;
+                    }
+                    return 2;
+                case LogicType.Left:
+                    if (dir == MatrixClass.VectorDirection.DiagonalRight)
+                    {
+                        return 1;
+                    }
+                    return 2;
+                default:
+                    return 0;
+            }
         }
         string GetArrowDirection() => ArrowMappings[direction];
     }

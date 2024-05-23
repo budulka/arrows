@@ -37,7 +37,7 @@ namespace arrows
 
         public void On_Click(object sender, RoutedEventArgs e)
         {
-
+            area.HighLightCells(x, y, this);
         }
         
     }

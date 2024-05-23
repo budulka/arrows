@@ -1,6 +1,7 @@
 ﻿
 
 using System;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -20,6 +21,7 @@ namespace arrows
         public MatrixClass _currentField;
         private bool _isGameWon = false;
         public bool IsWon { get {  return _isGameWon; } }
+        private NumberCell _highlighted = null;
         public GameArea(int size)
         {
             Size = size;
@@ -40,9 +42,9 @@ namespace arrows
             {
                 NumberCells[i] = new NumberCell[Size];
             }
-
-            GetNumberField();
             InitializeArrowCells();
+            GetNumberField();
+            
             _currentField = (MatrixClass)FieldMatrix.Clone();
             
         }
@@ -78,17 +80,11 @@ namespace arrows
             for (int i = 1; i < Size - 1; i++)
             {
                 Arrows[0][i] = new ArrowCell(LogicType.Center, 0, i, this);
-            }
-            for (int i = 1; i < Size - 1; i++)
-            {
+          
                 Arrows[1][i] = new ArrowCell(LogicType.Center, 1, i, this);
-            }
-            for (int i = 1; i < Size - 1; i++)
-            {
+           
                 Arrows[2][i] = new ArrowCell(LogicType.Center, 2, i, this);
-            }
-            for (int i = 1; i < Size - 1; i++)
-            {
+           
                 Arrows[3][i] = new ArrowCell(LogicType.Center, 3, i, this);
             }
             Arrows[0][0] = new ArrowCell(LogicType.Left, 0, 0, this);
@@ -136,7 +132,81 @@ namespace arrows
             }
         }
 
-       public bool CheckWin()
+        internal void HighLightCells(int x, int y, NumberCell cell)
+        {
+            if (_highlighted != null)
+            {
+                Dispatcher.Invoke(() => { 
+                    _highlighted.RectanglePen = new Pen(Brushes.Black, 1);
+                    SetZIndex(_highlighted, 0);
+                });
+            }
+            foreach(var t in Arrows)
+            {
+                foreach(var i in t)
+                {
+                    Disable(i);
+                }
+            }
+            _highlighted = cell;
+            Dispatcher.Invoke(() => { 
+                cell.RectanglePen = new Pen(Brushes.PaleTurquoise, 3);
+                SetZIndex(cell, 1);
+            });
+            HighLight(Arrows[0][y]);
+            HighLight(Arrows[1][x]);
+            HighLight(Arrows[2][Size - y - 1]);
+            HighLight(Arrows[3][Size - x - 1]);
+
+            if (y - x - 1 >= 0)
+            {
+                HighLight(Arrows[0][y - x - 1]);
+            }
+            if (y + x + 1 < Size)
+            {
+                HighLight(Arrows[0][y + x + 1]);
+            }
+            if (x - Size + y >= 0)
+            {
+                HighLight(Arrows[1][x - (Size - y)]);
+            }
+            if (x + Size - y < Size)
+            {
+                HighLight(Arrows[1][x + Size - y]);
+            }
+            if (x - y - 1 >= 0)
+            {
+                HighLight(Arrows[2][x - y - 1]);
+            }
+            if (2 * Size - 1 - y - x < Size)
+            {
+                HighLight(Arrows[2][2 * Size - 1 - y - x]);
+            }
+            if (Size - 2 - x - y >= 0)
+            {
+                HighLight(Arrows[3][Size - 2 - x - y]);
+            }
+            if (Size - (x - y) < Size)
+            {
+                HighLight(Arrows[3][Size - (x - y)]);
+            }
+        }
+
+        private void HighLight(ArrowCell cell)
+        {
+            Dispatcher.Invoke(() => {
+                cell.RectangleBrush = Brushes.PaleTurquoise;
+            });
+        }
+        private void Disable(ArrowCell cell)
+        {
+            Dispatcher.Invoke(() => {
+                cell.RectangleBrush = Brushes.White;
+            });
+        }
+        
+
+        public bool CheckWin()
         {
             for (int i = 0; i < Size; i++)
             {
@@ -161,7 +231,7 @@ namespace arrows
                 {
                     int field = ArrowMatrix[i][j];
                     MatrixClass.VectorDirection direction = MatrixClass.VectorDirection.Vertical;
-
+                    
                     if (field == 2)
                     {
                         direction = MatrixClass.VectorDirection.DiagonalRight;
@@ -170,6 +240,7 @@ namespace arrows
                     {
                         direction = MatrixClass.VectorDirection.DiagonalLeft;
                     }
+                    Arrows[i][j].original = direction;
                     int[][] vectorMatrix = FieldMatrix.CreateMatrixFromVector(i, direction, j, Size);
                     FieldMatrix = FieldMatrix.AddMatrices(vectorMatrix);
                 }
@@ -177,23 +248,48 @@ namespace arrows
         }
     }
 
+    public class Hint
+    {
+        private GameArea area;
+        private int Size;
 
-
-        public class MatrixClass : ICloneable
+        public Hint(GameArea area, int s)
         {
+            this.area = area;
+            Size = s;
+        }
 
-            public enum VectorDirection
-            {
+        public void GetHint()
+        {
+            Random randomX = new Random();
+            Random randomY = new Random();
+            int x, y;
+            do {
+                x = randomX.Next(0, 4);
+                y = randomY.Next(0, Size);
+            } while (area.GetArrowCells[x][y].IsDisabled || area.GetArrowCells[x][y].IsCorrect);
+            area.GetArrowCells[x][y].IsDisabled = true;
+            area.GetArrowCells[x][y].MarkAsHinted();
+        }
+    }
+
+
+
+    public class MatrixClass : ICloneable
+    {
+
+        public enum VectorDirection
+        {
                 Vertical,
                 DiagonalRight,
                 DiagonalLeft,
                 NoDirection
-            }
-            private int[][] MatrixArray;
-            public MatrixClass(int[][] matrix)
-            {
+        }
+        private int[][] MatrixArray;
+        public MatrixClass(int[][] matrix)
+        {
                 MatrixArray = matrix;
-            }
+        }
             public object Clone() => new MatrixClass(MatrixArray); 
             public MatrixClass AddMatrices(int[][] matrix2)
             {

@@ -11,17 +11,30 @@ namespace arrows
     {
         public const int CellSize = 50;
 
+        private Brush _rectangleBrush = Brushes.White;
         private Pen _rectanglePen = new Pen(Brushes.Black, 1);
 
+        public Brush RectangleBrush
+        {
+            get { return _rectangleBrush; }
+            set
+            {
+                if (_rectangleBrush != value)
+                {
+                    _rectangleBrush = value;
+                    InvalidateVisual(); 
+                }
+            }
+        }
         public Pen RectanglePen
         {
             get { return _rectanglePen; }
             set
             {
-                if (_rectanglePen != value)
+                if ( _rectanglePen != value)
                 {
                     _rectanglePen = value;
-                    InvalidateVisual(); 
+                    InvalidateVisual();
                 }
             }
         }
@@ -35,7 +48,7 @@ namespace arrows
         protected override void OnRender(DrawingContext drawingContext)
         {
             base.OnRender(drawingContext);
-            drawingContext.DrawRectangle(Brushes.White, _rectanglePen, new Rect(0, 0, CellSize, CellSize));
+            drawingContext.DrawRectangle(_rectangleBrush, _rectanglePen, new Rect(0, 0, CellSize, CellSize));
         }
 
     }
