@@ -4,9 +4,9 @@
         WindowStartupLocation="CenterScreen"
         Title="Congratulations" Height="150" Width="300">
     <Grid>
-        <TextBlock Text="Congratulations! You've won the game!" 
+        <Label Content="Congratulations! You've won the game!" 
                    HorizontalAlignment="Center" VerticalAlignment="Center" 
-                   TextWrapping="Wrap" Margin="10"/>
+                    Margin="10" Style="{StaticResource CustomFont}"/>
         <Button Content="OK" Width="75" Height="25" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,20" Click="OKButton_Click"/>
     </Grid>
 </Window>

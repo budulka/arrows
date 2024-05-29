@@ -4,6 +4,8 @@
              xmlns:local="clr-namespace:arrows"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <Style x:Key="CustomFont" TargetType="Label">
+            <Setter Property="TextElement.FontFamily" Value="FUTURA65MEDIUM.ttf#Futura Medium"/>
+        </Style>
     </Application.Resources>
 </Application>

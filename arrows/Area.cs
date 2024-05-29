@@ -17,6 +17,7 @@ namespace arrows
         public int Size;
         private ArrowCell[][] Arrows;
         internal NumberCell[][] NumberCells;
+        internal CustomCell[][] CustomCells;    
         internal ArrowCell[][] GetArrowCells => Arrows;
         public MatrixClass _currentField;
         private bool _isGameWon = false;
@@ -42,10 +43,33 @@ namespace arrows
             {
                 NumberCells[i] = new NumberCell[Size];
             }
+
+        }
+
+        public void CreateGameArea()
+        {
+            
             InitializeArrowCells();
             GetNumberField();
-            
             _currentField = (MatrixClass)FieldMatrix.Clone();
+        }
+
+        public void CreateCustomArea(int size)
+        {
+            CustomCells = new CustomCell[Size][];
+            for (int i = 0; i < Size; i++)
+            {
+                CustomCells[i] = new CustomCell[Size];
+            }
+            InitializeArrowCells();
+            foreach(var t in Arrows)
+            {
+                foreach(var k in t)
+                {
+                   k.IsDisabled = true;
+                }
+            }
+            _currentField = new MatrixClass(size);
         }
             
 
@@ -79,11 +103,8 @@ namespace arrows
             for (int i = 1; i < Size - 1; i++)
             {
                 Arrows[0][i] = new ArrowCell(LogicType.Center, 0, i, this);
-          
                 Arrows[1][i] = new ArrowCell(LogicType.Center, 1, i, this);
-           
                 Arrows[2][i] = new ArrowCell(LogicType.Center, 2, i, this);
-           
                 Arrows[3][i] = new ArrowCell(LogicType.Center, 3, i, this);
             }
             Arrows[0][0] = new ArrowCell(LogicType.Left, 0, 0, this);
@@ -108,14 +129,36 @@ namespace arrows
                 int[][] VectorMatrix = FieldMatrix.CreateMatrixFromVector(from, direction, pos, Size);
                 _currentField = _currentField.SubtractMatrices(VectorMatrix);
             }
+        }
+
+        public void AddArrow(int from, MatrixClass.VectorDirection direction, int pos)
+        {
+            if (direction != MatrixClass.VectorDirection.NoDirection)
+            {
+                int[][] prev = FieldMatrix.CreateMatrixFromVector(from, direction, pos, Size);
+                _currentField = _currentField.AddMatrices(prev);
+            }
+        }
+        public void SubractArrow(int from, MatrixClass.VectorDirection direction, int pos)
+        {
+            if (direction != MatrixClass.VectorDirection.NoDirection)
+            {
+                int[][] VectorMatrix = FieldMatrix.CreateMatrixFromVector(from, direction, pos, Size);
+                _currentField = _currentField.SubtractMatrices(VectorMatrix);
+            }
+        }
+       
+
+        public void Paint()
+        {
             for (int i = 0; i < Size; i++)
             {
                 for (int j = 0; j < Size; j++)
                 {
                     if (_currentField[i, j] == 0)
                     {
-                       NumberCells[i][j].text.Foreground = Brushes.Green;
-                       NumberCells[i][j].text.FontWeight = FontWeights.Bold;
+                        NumberCells[i][j].text.Foreground = Brushes.Green;
+                        NumberCells[i][j].text.FontWeight = FontWeights.Bold;
                     }
                     else if (_currentField[i, j] < 0)
                     {
@@ -124,8 +167,8 @@ namespace arrows
                     }
                     else
                     {
-                        NumberCells[i][j].text.Foreground= Brushes.Black;
-                        NumberCells[i][j].text.FontWeight= FontWeights.Normal;
+                        NumberCells[i][j].text.Foreground = Brushes.Black;
+                        NumberCells[i][j].text.FontWeight = FontWeights.Normal;
                     }
                 }
             }
@@ -205,7 +248,7 @@ namespace arrows
         private void Disable(ArrowCell cell)
         {
             Dispatcher.Invoke(() => {
-                cell.RectangleBrush = Brushes.White;
+                cell.RectangleBrush = Brushes.Transparent;
             });
         }
         

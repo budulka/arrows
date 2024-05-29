@@ -20,6 +20,14 @@ namespace arrows
         {
             MatrixArray = matrix;
         }
+        public MatrixClass(int i)
+        {
+            MatrixArray = new int[i][];
+            for (int j = 0; j < i; j++)
+            {
+                MatrixArray[j] = new int[i];
+            }
+        }
         public object Clone() => new MatrixClass(MatrixArray);
         public MatrixClass AddMatrices(int[][] matrix2)
         {
@@ -156,6 +164,14 @@ namespace arrows
                     throw new IndexOutOfRangeException("Index out of range");
                 }
                 return MatrixArray[i][j];
+            }
+            set
+            {
+                if (i < 0 || i >= MatrixArray.Length || j < 0 || j >= MatrixArray[i].Length)
+                {
+                    throw new IndexOutOfRangeException("Index out of range");
+                }
+                MatrixArray[i][j] = value;
             }
         }
     }

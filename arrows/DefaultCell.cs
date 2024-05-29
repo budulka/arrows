@@ -7,11 +7,12 @@ using System.Windows;
 namespace arrows
 {
     
-    abstract class DefaultCell : UserControl
+    internal abstract class DefaultCell : UserControl
     {
         public const int CellSize = 50;
+        internal TextBlock text;
 
-        private Brush _rectangleBrush = Brushes.White;
+        private Brush _rectangleBrush = Brushes.Transparent;
         private Pen _rectanglePen = new Pen(Brushes.Black, 1);
 
         public Brush RectangleBrush

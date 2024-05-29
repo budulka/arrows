@@ -12,7 +12,7 @@ namespace arrows
         private int direction;
         private GameArea area;
         public LogicType log;
-        public int Direction => direction;
+        public int Direction { get {return direction; } set { direction = value; }}
         public readonly Point Pos;
         private MatrixClass.VectorDirection previous = MatrixClass.VectorDirection.NoDirection;
         public MatrixClass.VectorDirection original = MatrixClass.VectorDirection.NoDirection;
@@ -28,7 +28,7 @@ namespace arrows
             { LogicType.Center, new Dictionary<int, string> { { 0, "?" }, { 1, "🡧" }, { 2, "🡣" }, { 3, "🡦" } } },
             { LogicType.Right, new Dictionary<int, string> { { 0, "?" }, { 1, "🡧" }, { 2, "🡣" } } },
         };
-        private TextBlock textBlock;
+        public TextBlock textBlock;
         private Dictionary<int, string> ArrowMappings;
 
         public ArrowCell(LogicType logic, int x, int y, GameArea area) : base()
@@ -73,6 +73,7 @@ namespace arrows
                 IsCorrect = true;
             }
             area.UpdateCurrentField((int)Pos.X, cur, (int)Pos.Y, previous);
+            area.Paint();
             previous = cur;
             if (area.CheckWin())
             {
@@ -115,11 +116,45 @@ namespace arrows
                     return MatrixClass.VectorDirection.NoDirection;
             }
         }
+
+        public List<MatrixClass.VectorDirection> PossibleDirection()
+        {
+            List<MatrixClass.VectorDirection> possible = new List<MatrixClass.VectorDirection>();
+            switch (log)
+            {
+                case LogicType.Center:
+                    possible.Add(MatrixClass.VectorDirection.Vertical);
+                    possible.Add(MatrixClass.VectorDirection.DiagonalLeft);
+                    possible.Add(MatrixClass.VectorDirection.DiagonalRight);
+                    break;
+                case LogicType.Right:
+                    possible.Add(MatrixClass.VectorDirection.Vertical);
+                    possible.Add(MatrixClass.VectorDirection.DiagonalLeft);
+                    break;
+                case LogicType.Left:
+                    possible.Add(MatrixClass.VectorDirection.Vertical);
+                    possible.Add(MatrixClass.VectorDirection.DiagonalRight);
+                    break;
+            }
+            return possible;
+
+        }
+        public void NextMove()
+        {
+            direction++;
+            if (direction >= ArrowMappings.Count)
+            {
+                direction = 0;
+            }
+            textBlock.Text = GetArrowDirection();
+        }
+        
         public void MarkAsHinted()
         {
             IsDisabled = true;
             textBlock.Foreground = Brushes.Blue;
             area.UpdateCurrentField((int)Pos.X, original, (int)Pos.Y, previous);
+            area.Paint();
             direction = GetDirectionAsANumber(original);
             textBlock.Text = GetArrowDirection();
             if (area.CheckWin())
@@ -129,7 +164,7 @@ namespace arrows
             }
         }
 
-        private int GetDirectionAsANumber(MatrixClass.VectorDirection dir)
+        public int GetDirectionAsANumber(MatrixClass.VectorDirection dir)
         {
             switch (log)
             {
@@ -159,6 +194,6 @@ namespace arrows
                     return 0;
             }
         }
-        string GetArrowDirection() => ArrowMappings[direction];
+       public  string GetArrowDirection() => ArrowMappings[direction];
     }
 }
